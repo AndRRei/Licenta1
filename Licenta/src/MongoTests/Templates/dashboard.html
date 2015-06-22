@@ -1,0 +1,342 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+{% load staticfiles %}
+<script src="{% static "js/chart/Chart.js-master/Chart.js" %}" ></script>
+<div class="container-fluid">
+	<div class="row">
+		<div class="col-md-2" id="CPUUsage">
+			<div class="panel panel-default">
+				<div id="id-panel-CPUUsage-heading" class="panel-heading">
+					<h3 class="panel-title">CPU Usage</h3>
+				</div>
+				<div id="id-panel-CPUUsage-body" class="panel-body">
+					<p style='color:green'>
+						0 %
+					</p>
+
+				</div>
+			</div>
+		</div>
+
+		<div class="col-md-2" id="memoryUsage">
+			<div class="panel panel-default">
+				<div id="id-panel-memoryUsage-heading" class="panel-heading">
+					<h3 class="panel-title">Memory Usage</h3>
+				</div>
+				<div id="id-panel-memoryUsage-body" class="panel-body">
+					<p style='color:green'>
+						0 %
+					</p>
+
+				</div>
+			</div>
+		</div>
+		<div class="col-md-2" id="diskUsage">
+			<div class="panel panel-default">
+				<div id="id-panel-diskUsage-heading" class="panel-heading">
+					<h3 class="panel-title">Disk Usage</h3>
+				</div>
+				<div id="id-panel-diskUsage-body" class="panel-body">
+					<p style='color:green'>
+						0 %
+					</p>
+
+				</div>
+			</div>
+		</div>
+		<div class="col-md-6" id="testConfiguration">
+			<div class="panel panel-default">
+				<div id="id-panel-testConfiguration-heading" class="panel-heading">
+					<h3 class="panel-title">Test Configuration</h3>
+				</div>
+				<div id="id-panel-testConfiguration-body" class="panel-body"></div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="progressStatus">
+	<div id="progressBarDiv" >
+		<progress id="progressBar" max="100" value="0"></progress>
+	</div>
+</div>
+
+<div class="panel panel-default">
+	<div id="id-panel-heading" class="panel-heading">
+		<h3 class="panel-title">Logs</h3>
+	</div>
+	<div id="id-panel-body" class="panel-body">
+		Here you can see test progress in real time . Please configure the test before start it .
+	</div>
+</div>
+
+<div id="id-options-panel">
+	<ul>
+		<li>
+			<button id="configureTestButton" type="button" class="btn btn-default">
+				Configure Test
+			</button>
+		</li>
+		<form id="startTestForm" action="" method="post">
+			{% csrf_token %}
+			<li>
+				<p>
+					Number of operations :
+				</p>
+			</li>
+			<li>
+				<input id="NumberOfOperations" name="NumberOfOperations" class="form-control" type="text">
+			</li>
+			<li>
+				<button id="startTestButton" type="submit" class="btn btn-default">
+					Start Test
+				</button>
+			</li>
+		</form>
+	</ul>
+</div>
+
+<div class="modal fade" id="configureTestModal">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+				<h4 class="modal-title">Test configuration</h4>
+			</div>
+
+			<div class="modal-body">
+				<form id="configurationForm" action="" method="post">
+					{% csrf_token %}
+					<p>
+						<table id="Operation">
+							<tr>
+								<td>Operations</td>
+								<td>Percentage</td>
+								<td>Keys</td>
+								<td>Size</td>
+							</tr>
+
+							<tr>
+								<td>{{form.readState}}Read</td>
+								<td>{{form.readPercentage}}</td>
+								<td>{{form.readKeys}}</td>
+								<td>{{form.readSize}}</td>
+							</tr>
+							<tr>
+								<td>{{form.writeState}}Write</td>
+								<td>{{form.writePercentage}}</td>
+								<td>{{form.writeKeys}}</td>
+								<td>{{form.writeSize}}</td>
+							</tr>
+							<tr>
+								<td>{{form.updateState}}Update</td>
+								<td>{{form.updatePercentage}}</td>
+								<td>{{form.updateKeys}}</td>
+								<td>{{form.updateSize}}</td>
+							</tr>
+
+						</table>
+					</p>
+					<button type="submit" class="btn btn-primary">
+						Save changes
+					</button>
+				</form>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">
+					Close
+				</button>
+				<button type="button" class="btn btn-primary">
+					Save changes
+				</button>
+			</div>
+
+		</div><!-- /.modal-content -->
+	</div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<div class="modal fade" id="id-report-modal">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+				<h4 class="modal-title">Test Report</h4>
+			</div>
+			<div class="modal-body" id="id-test-report-body">
+
+				<div id="id-report-test-configuration">
+
+				</div>
+
+				<div id="id-report-time-interval">
+
+				</div>
+
+				<div id="id-report-CPU-average">
+
+				</div>
+
+				<div id="id-report-graphic">
+					<canvas id="myChart" width="400" height="400"></canvas>
+				</div>
+
+				<div id="id-report-num-of-operations">
+
+				</div>
+
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">
+					Close
+				</button>
+				<button type="button" class="btn btn-primary">
+					Save changes
+				</button>
+			</div>
+		</div><!-- /.modal-content -->
+	</div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+{% endblock %}
+
+{% block script %}
+<script>
+	jQuery(document).ready(function() {
+		$.ajax({
+			url : 'MongoTests/getTestConfiguration',
+			type : 'GET',
+			success : function(element) {
+				updateTestConfiguration(element, 'id-panel-testConfiguration-body');
+				updateTestConfiguration(element, 'id-report-test-configuration');
+			},
+			error : function(data) {
+			}
+		});
+
+		$("#configureTestButton").click(function() {
+			$("#configureTestModal").modal();
+		});
+
+		$('#configurationForm').submit(function(event) {
+			event.preventDefault();
+			var data = $('#configurationForm').serialize();
+			$.ajax({
+				url : 'MongoTests/saveTestConfiguration',
+				data : data,
+				type : 'POST',
+				success : function(element) {
+					console.log(element);
+					updateTestConfiguration(element, 'id-panel-testConfiguration-body');
+					updateTestConfiguration(element, 'id-report-test-configuration');
+				},
+				error : function(data) {
+				}
+			});
+		});
+
+		$("#startTestForm").submit(function(event) {
+			event.preventDefault();
+			$("#startTestButton").attr('disabled', 'disabled');
+			$("#progressBar").attr('value', 0);
+			$("#progressBar").attr('max', $('#NumberOfOperations').val());
+			$("#id-panel-body").empty();
+			$.ajax({
+				url : 'MongoTests/testMongoDB',
+				data : $('#startTestForm').serialize(),
+				type : 'POST',
+				success : function(data) {
+				},
+				error : function(data) {
+				}
+			});
+			intervalGetTestStatus = setInterval(function() {
+				$.ajax({
+					url : 'MongoTests/getTestStatus',
+					datatype : 'json',
+					type : 'GET',
+					success : function(data) {
+
+						if (data.isTableCreated == 1) {
+							$('#id-panel-body').append('<p>Current operation is : ' + data.currentNumberOfOperation + '</p>');
+						} else if (data.isTableCreated == 0) {
+							$('#id-panel-body').append('<p>Creating tables . . .</p>');
+						}
+						if (data.isFinished == 1) {
+							clearInterval(intervalGetTestStatus);
+							$("#startTestButton").removeAttr('disabled');
+							$("#id-report-time-interval").html(data.testTime);
+							$('#id-report-modal').modal();
+							$('#id-report-modal').on('shown.bs.modal', function(event) {
+			
+								var modal = $(this);
+								var canvas = modal.find('.modal-body canvas');
+
+								// Chart initialisieren
+								var ctx = canvas[0].getContext("2d");
+								var chart = new Chart(ctx).Line({
+									labels : ["January", "February", "March", "April", "May", "June", "July"],
+									datasets : [{
+										fillColor : "rgba(190,144,212,0.2)",
+										strokeColor : "rgba(190,144,212,1)",
+										pointColor : "rgba(190,144,212,1)",
+										pointStrokeColor : "#fff",
+										pointHighlightFill : "#fff",
+										pointHighlightStroke : "rgba(220,220,220,1)",
+										data : [65, 59, 80, 81, 56, 55, 40]
+									}, {
+										fillColor : "rgba(151,187,205,0.2)",
+										strokeColor : "rgba(151,187,205,1)",
+										pointColor : "rgba(151,187,205,1)",
+										pointStrokeColor : "#fff",
+										pointHighlightFill : "#fff",
+										pointHighlightStroke : "rgba(151,187,205,1)",
+										data : [65, 59, 80, 81, 56, 55, 40]
+									}]
+								}, {});
+							});
+							
+
+						}
+						
+
+						$("#progressBar").attr('value', data.currentNumberOfOperation);
+					},
+					error : function(data) {
+					}
+				});
+			}, 1000);
+			intervalGetCPUUsage = setInterval(function() {
+				$.ajax({
+					url : 'MongoTests/getCPUUsage',
+					datatype : 'json',
+					type : 'GET',
+					success : function(data) {
+						$("#id-panel-CPUUsage-body").html("<p style='color:green'>" + data.CPUUsage + " % </p>");
+						$("#id-panel-memoryUsage-body").html("<p style='color:green'>" + data.memoryUsage + " % </p>");
+						$("#id-panel-diskUsage-body").html("<p style='color:green'>" + data.diskUsage + " % </p> ");
+						console.log(data.isFinished);
+
+						if (data.isFinished == 1) {
+							clearInterval(intervalGetCPUUsage);
+						}
+					},
+					error : function(data) {
+					}
+				});
+			}, 1000);
+
+		});
+		function updateTestConfiguration(element, selector) {
+			$("#" + selector).html("<table id='id-table-configuration'>" + "<tr>" + "<th>Operation</th>" + "<th>On/Off</th>" + "<th>Percentage</th>" + "<th>Keys</th>" + "<th>Size</th>" + "</tr>" + "<tr>" + "<td>Read</td>" + "<td>" + element.readState + "</td>" + "<td>" + element.readPercentage + "</td>" + "<td>" + element.readKeys + "</td>" + "<td>" + element.readSize + "</td>" + "</tr>" + "<tr>" + "<td>Write</td>" + "<td>" + element.writeState + "</td>" + "<td>" + element.writePercentage + "</td>" + "<td>" + element.writeKeys + "</td>" + "<td>" + element.writeSize + "</td>" + "</tr>" + "<tr>" + "<td>Update</td>" + "<td>" + element.updateState + "</td>" + "<td>" + element.updatePercentage + "</td>" + "<td>" + element.updateKeys + "</td>" + "<td>" + element.updateSize + "</td>" + "</tr>" + "</table>");
+		}
+
+	}); 
+</script>
+{% endblock %}

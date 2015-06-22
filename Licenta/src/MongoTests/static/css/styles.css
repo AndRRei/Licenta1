@@ -1,0 +1,80 @@
+tr , td{
+	padding : 5px;
+}
+
+#layoutMenu li{
+	width: 200px;
+	text-align: center;
+	
+}
+#content{
+	margin:50px 100px 50px 100px;
+}
+.navbar-default{
+	margin:20px 50px 20px 50px;
+}
+#Operation td input{
+	width: 120px;
+}
+
+#id_readState , #id_updateState,#id_writeState{
+	width: 20px !important;
+}
+.navbar-default{
+	background-color: #565695;
+}
+
+.navbar-default a{
+	color:whitesmoke;
+}
+.navbar-default li:hover a
+{
+	background-color: #09093B;
+	border-radius: 0px;
+	border-top:  0px;
+}
+.navbar-default li a:focus
+{
+	background-color: #09093B;
+	border-radius: 0px;
+	border-top:  0px;
+}
+#id-panel-heading{
+	background-color: #1A1A59;
+	color:whitesmoke;
+}
+#id-panel-body{
+	min-height: 200px;
+	max-height: 200px;
+	overflow-y: scroll;
+}
+#id-options-panel li{
+	display: inline-block;
+}
+#progressBar{
+	width:100%;
+	height: 25px;
+	
+}
+
+#progressBarDiv{
+	width:100%;
+	display:inline-block;
+}
+#id-panel-CPUUsage-heading,#id-panel-memoryUsage-heading,#id-panel-diskUsage-heading,#id-panel-testConfiguration-heading{
+	background-color: #8080B3;
+	color:whitesmoke;
+}
+#id-panel-CPUUsage-body,#id-panel-memoryUsage-body,#id-panel-diskUsage-body,#id-panel-testConfiguration-body{
+	min-height: 100px;
+	max-height: 100px;
+}
+#id-table-configuration{
+	margin: 0 auto;
+}
+
+#id-table-configuration tr td,th{
+	width:100px;
+	padding : 0px;
+	text-align:center;
+}

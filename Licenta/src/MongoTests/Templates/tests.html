@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}Tests{% endblock %}
+
+{% block content %}
+<div id="test">
+	<form action="{% url 'dashboard'  %}" method="post">
+		{% csrf_token %}
+		<div id="operations">
+			<table id="Operation">
+				<tr>
+					<td>Operations</td>
+					<td>Percentage</td>
+					<td>Keys</td>
+					<td>Size</td>
+				</tr>
+
+				<tr>
+					<td>{{form.readState}}</td>
+					<td>{{form.readPercentage}}</td>
+					<td>{{form.readKeys}}</td>
+					<td>{{form.readSize}}</td>
+				</tr>
+				<tr>
+					<td>{{form.writeState}}</td>
+					<td>{{form.writePercentage}}</td>
+					<td>{{form.writeKeys}}</td>
+					<td>{{form.writeSize}}</td>
+				</tr>
+				<tr>
+					<td>{{form.updateState}}</td>
+					<td>{{form.updatePercentage}}</td>
+					<td>{{form.updateKeys}}</td>
+					<td>{{form.updateSize}}</td>
+				</tr>
+
+			</table>
+			
+			
+
+		</div>
+		<input type="hidden" id="NumOfOperatios" name="NumOfOperatios" value="1">
+		<input type="submit" value="Submit" />
+	</form>
+
+	<input id="addOperation" type="button"  style="margin: 20px" value="Add new client">
+</div>
+
+<script>
+	jQuery(document).ready(function() {
+        var aux;
+		$("#addOperation").click(function() {
+			$("#NumOfOperatios").val(parseInt($("#NumOfOperatios").val()) + 1);
+			
+			aux=$("#Operation").html();
+			
+			$('#operations').append(aux);
+			
+		});
+	}); 
+</script>
+
+{% endblock %}
+
