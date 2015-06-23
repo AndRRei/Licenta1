@@ -16,6 +16,8 @@ class DatabaseTester():
     '''
     currentNumberOfOps=0
     testTime=0
+    intervalsVector=[]
+    timesVector=[]
 
     def __init__(self, TestConfiguration,NumberOfOperations):
         '''
@@ -25,6 +27,8 @@ class DatabaseTester():
         self.TestConfiguration = TestConfiguration
         
     def test(self):
+        print (self.NumberOfOperations)    
+
         configuration=self.TestConfiguration
         client = MongoClient()
         db=client.database
@@ -41,6 +45,9 @@ class DatabaseTester():
         if 'updateState' in configuration:
             for i in range (0,int(configuration['updatePercentage'])):
                 updateVector.append(i+1+len(readVector)+len(writeVector))
+        intervalSize=int(int(self.NumberOfOperations)/10)
+        currentInterval=int(int(self.NumberOfOperations)/10)
+        print (intervalSize)
         now=datetime.datetime.now()
         for i in range(1,int(self.NumberOfOperations)+1):
             random = randint(1,100)
@@ -54,11 +61,15 @@ class DatabaseTester():
             if  random in updateVector:
                 db.update_collection.update({"test":"test"},{"$set":{"test1":"test1"}})
             self.updateCurrentNumberOfOps(i)
-            
+            if (i==currentInterval):
+                currentInterval=currentInterval+intervalSize
+                self.intervalsVector.append(i)
+                timePerInterval=datetime.datetime.now()
+                self.timesVector.append((timePerInterval-now).total_seconds()*1000)
+
         later=datetime.datetime.now()
         testTime=later-now
-        self.updateTestTime(testTime.seconds)
-        print (testTime)
+        self.updateTestTime(testTime.total_seconds()*1000)
         #db.read_collection.drop()
         #db.update_collection.drop()
         #db.write_collection.drop()
@@ -68,6 +79,10 @@ class DatabaseTester():
         self.currentNumberOfOps=currentNumberOfOps
     def updateTestTime(self,testTime):
         self.testTime=testTime
+    def emptyTimesVector(self):
+        self.timesVector=[]
+    def emptyIntervalsVector(self):
+        self.intervalsVector=[]
                 
             
         

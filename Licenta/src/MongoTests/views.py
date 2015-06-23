@@ -20,8 +20,9 @@ from MongoTests.TestConfigurationForm import TestConfigurationForm
         
 class myThread (threading.Thread):
     currentNumberOfOps=0
-    #time=0
-    
+    intervalsVector=[]
+    timesVector=[]
+        
     def __init__(self,tester):
         threading.Thread.__init__(self)
         self.tester=tester
@@ -35,7 +36,15 @@ class myThread (threading.Thread):
         return self.time
     def getThreadId(self):
         return threading.get_ident()
-        
+    def getIntervalsVector(self):
+        self.intervalsVector=self.tester.intervalsVector
+        self.tester.emptyTimesVector()
+        return self.intervalsVector
+    def getTimesVector(self):
+        self.timesVector=self.tester.timesVector
+        self.tester.emptyIntervalsVector()
+        return self.timesVector
+
         
         
        
@@ -46,6 +55,7 @@ class myThread (threading.Thread):
        
 t1=myThread(0)
 isThreadStarted=False;
+isThreadFinished=0
 # def base(request):
 #     return render(request , 'base.html')
 # def tests(request):
@@ -73,25 +83,24 @@ def testMongoDB(request):
     t1.start()
     global isThreadStarted
     isThreadStarted=True
-    
     return HttpResponse("Thread for test was started");
 def getTestStatus(request):
     global isThreadStarted
-    isFinished=0;
+    global t1
     currentNumberOfOps=0;
     if(isThreadStarted==True):
         
+        isThreadFinished=0;
         currentNumberOfOps=t1.getCurrentNumberOfOps()
         data={}
         if not t1.isAlive():
-            isFinished=1;
+            isThreadFinished=1;
             isThreadStarted=False
             data['testTime']=t1.getTime()
-        
+            data['intervalsVector']=t1.getIntervalsVector()
+            data['timesVector']=t1.getTimesVector()
         data['currentNumberOfOperation']=currentNumberOfOps;
-        
-
-        data['isFinished']=isFinished;
+        data['isFinished']=isThreadFinished;
         data['isTableCreated']=1
         return HttpResponse(json.dumps(data),content_type = "application/json");
     else:
@@ -102,25 +111,19 @@ def getCPUUsage(request):
     data={}
     global isThreadStarted
     global t1
-    isFinished=0;
     if (isThreadStarted==True):
-        isFinished=0;
+        isThreadFinished=0;
         proc = psutil.Process()
         data['CPUUsage']=proc.cpu_percent(interval=1)
         data['memoryUsage']=proc.memory_percent()
-        data['totalCPUUsage']=psutil.cpu_percent()             
-        data['totalMemoryUsage']=psutil.virtual_memory().percent
         data['diskUsage']=psutil.disk_usage('C:/data').percent
         if not t1.isAlive():
-            isFinished=1;
-            isThreadStarted=False
-        data['isFinished']=isFinished;
+            isThreadFinished=1;
+        data['isFinished']=isThreadFinished;
         return HttpResponse(json.dumps(data),content_type = "application/json");
     else:
         data['CPUUsage']=0
         data['memoryUsage']=0
-        data['totalCPUUsage']=psutil.cpu_percent()            
-        data['totalMemoryUsage']=psutil.virtual_memory().percent
         data['diskUsage']=psutil.disk_usage('C:/data').percent
         return HttpResponse(json.dumps(data),content_type = "application/json");
 def getTestConfiguration(request):

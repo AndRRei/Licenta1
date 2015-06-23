@@ -263,13 +263,13 @@
 					datatype : 'json',
 					type : 'GET',
 					success : function(data) {
-
 						if (data.isTableCreated == 1) {
 							$('#id-panel-body').append('<p>Current operation is : ' + data.currentNumberOfOperation + '</p>');
 						} else if (data.isTableCreated == 0) {
 							$('#id-panel-body').append('<p>Creating tables . . .</p>');
 						}
 						if (data.isFinished == 1) {
+							console.log(data);
 							clearInterval(intervalGetTestStatus);
 							$("#startTestButton").removeAttr('disabled');
 							$("#id-report-time-interval").html(data.testTime);
@@ -282,7 +282,7 @@
 								// Chart initialisieren
 								var ctx = canvas[0].getContext("2d");
 								var chart = new Chart(ctx).Line({
-									labels : ["January", "February", "March", "April", "May", "June", "July"],
+									labels : data.intervalsVector,
 									datasets : [{
 										fillColor : "rgba(190,144,212,0.2)",
 										strokeColor : "rgba(190,144,212,1)",
@@ -290,15 +290,7 @@
 										pointStrokeColor : "#fff",
 										pointHighlightFill : "#fff",
 										pointHighlightStroke : "rgba(220,220,220,1)",
-										data : [65, 59, 80, 81, 56, 55, 40]
-									}, {
-										fillColor : "rgba(151,187,205,0.2)",
-										strokeColor : "rgba(151,187,205,1)",
-										pointColor : "rgba(151,187,205,1)",
-										pointStrokeColor : "#fff",
-										pointHighlightFill : "#fff",
-										pointHighlightStroke : "rgba(151,187,205,1)",
-										data : [65, 59, 80, 81, 56, 55, 40]
+										data : data.timesVector
 									}]
 								}, {});
 							});
@@ -322,7 +314,6 @@
 						$("#id-panel-CPUUsage-body").html("<p style='color:green'>" + data.CPUUsage + " % </p>");
 						$("#id-panel-memoryUsage-body").html("<p style='color:green'>" + data.memoryUsage + " % </p>");
 						$("#id-panel-diskUsage-body").html("<p style='color:green'>" + data.diskUsage + " % </p> ");
-						console.log(data.isFinished);
 
 						if (data.isFinished == 1) {
 							clearInterval(intervalGetCPUUsage);
