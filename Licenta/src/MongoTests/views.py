@@ -4,7 +4,11 @@ import json
 import psutil
 import os
 import collections
+import reportlab
 
+from reportlab.rl_config import defaultPageSize  
+from reportlab.pdfgen import canvas
+from django.http import HttpResponse
 from django.forms.models import modelform_factory
 from django.forms import ModelForm
 from MongoTests.models import TestConfiguration
@@ -38,11 +42,11 @@ class myThread (threading.Thread):
         return threading.get_ident()
     def getIntervalsVector(self):
         self.intervalsVector=self.tester.intervalsVector
-        self.tester.emptyTimesVector()
+        self.tester.emptyIntervalsVector()
         return self.intervalsVector
     def getTimesVector(self):
         self.timesVector=self.tester.timesVector
-        self.tester.emptyIntervalsVector()
+        self.tester.emptyTimesVector()
         return self.timesVector
 
         
@@ -116,7 +120,7 @@ def getCPUUsage(request):
         proc = psutil.Process()
         data['CPUUsage']=proc.cpu_percent(interval=1)
         data['memoryUsage']=proc.memory_percent()
-        data['diskUsage']=psutil.disk_usage('C:/data').percent
+        data['diskUsage']=int(psutil.disk_usage('C:/data').used/10e5)
         if not t1.isAlive():
             isThreadFinished=1;
         data['isFinished']=isThreadFinished;
@@ -124,11 +128,30 @@ def getCPUUsage(request):
     else:
         data['CPUUsage']=0
         data['memoryUsage']=0
-        data['diskUsage']=psutil.disk_usage('C:/data').percent
+        data['diskUsage']=int(psutil.disk_usage('C:/data').used/10e5)
         return HttpResponse(json.dumps(data),content_type = "application/json");
 def getTestConfiguration(request):
     configuration=request.session["test_configuration"]
     return HttpResponse(json.dumps(configuration),content_type = "application/json");
+def generatePdfReport(request):
+    # Create the HttpResponse object with the appropriate PDF headers.
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="somefilename.pdf"'
+
+    # Create the PDF object, using the response object as its "file."
+    p = canvas.Canvas(response)
+    
+    # Draw things on the PDF. Here's where the PDF generation happens.
+    # See the ReportLab documentation for the full list of functionality.
+    Title="Test Report"
+    PAGE_HEIGHT=defaultPageSize[1]  
+    PAGE_WIDTH=defaultPageSize[0]  
+    p.drawCentredString(PAGE_WIDTH/2.0, PAGE_HEIGHT-108, Title)
+      
+    # Close the PDF object cleanly, and we're done.
+    p.showPage()
+    p.save()
+    return response
 
 
     

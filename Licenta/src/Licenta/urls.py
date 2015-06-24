@@ -14,5 +14,6 @@ urlpatterns = patterns('',
     url(r'MongoTests/saveTestConfiguration',"MongoTests.views.saveTestConfiguration"),
     url(r'MongoTests/getTestStatus','MongoTests.views.getTestStatus'),
     url(r'MongoTests/getCPUUsage','MongoTests.views.getCPUUsage'),
-    url(r'MongoTests/getTestConfiguration','MongoTests.views.getTestConfiguration')
+    url(r'MongoTests/getTestConfiguration','MongoTests.views.getTestConfiguration'),
+    url(r'MongoTests/generatePdfReport','MongoTests.views.generatePdfReport',name='getPdfReport')
 )
