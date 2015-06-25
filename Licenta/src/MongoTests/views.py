@@ -18,6 +18,17 @@ from django.shortcuts import render
 from MongoTests.TableGenerator import TableGenerator
 from MongoTests.DatabaseTester import DatabaseTester
 from MongoTests.TestConfigurationForm import TestConfigurationForm
+from reportlab.platypus import Paragraph, Table, TableStyle
+from reportlab.lib import colors
+from reportlab.graphics.charts.lineplots import GridLinePlot
+from reportlab.graphics.shapes import Drawing
+from reportlab.graphics.charts.lineplots import LinePlot
+from reportlab.graphics.widgets.markers import makeMarker
+from reportlab.graphics.charts.piecharts import Pie
+from reportlab.graphics import shapes
+from reportlab.graphics.charts.axes import XCategoryAxis,YValueAxis
+
+
 
 
 
@@ -26,17 +37,19 @@ class myThread (threading.Thread):
     currentNumberOfOps=0
     intervalsVector=[]
     timesVector=[]
+    time=0
+    
         
     def __init__(self,tester):
         threading.Thread.__init__(self)
         self.tester=tester
     def run(self):
         self.tester.test()
+        self.time=self.tester.testTime
     def getCurrentNumberOfOps(self):
         self.currentNumberOfOps=self.tester.currentNumberOfOps
         return self.currentNumberOfOps
     def getTime(self):
-        self.time=self.tester.testTime
         return self.time
     def getThreadId(self):
         return threading.get_ident()
@@ -147,7 +160,52 @@ def generatePdfReport(request):
     PAGE_HEIGHT=defaultPageSize[1]  
     PAGE_WIDTH=defaultPageSize[0]  
     p.drawCentredString(PAGE_WIDTH/2.0, PAGE_HEIGHT-108, Title)
-      
+    p.drawString(100,900,"Test Configuration")
+    configuration=request.session["test_configuration"]
+    data=[['Operation','On/Off','Percentage','Keys','Size']]
+    if 'readState' in configuration:
+        readData=[['Read',configuration['readState'],configuration['readPercentage'],configuration['readKeys'],configuration['readSize']]]
+    else:
+        readData=[['Read','0','0','0','0']]
+    data=data+readData
+    if 'writeState' in configuration:
+        writeData=[['Write',configuration['writeState'],configuration['writePercentage'],configuration['writeKeys'],configuration['writeSize']]]
+    else:
+        writeData=[['Write','0','0','0','0']]
+    data=data+writeData
+    if 'updateState' in configuration:
+        updateData=[['Update',configuration['updateState'],configuration['updatePercentage'],configuration['updateKeys'],configuration['updateSize']]]
+    else:
+        updateData=[['Update','0','0','0','0']]
+    data=data+updateData
+    table = Table(data, colWidths=100, rowHeights=20)
+    table.hAlign="CENTER"
+    table.setStyle(TableStyle())
+    table.wrapOn(p, 300, 800)
+    table.drawOn(p,80,550)
+    
+    p.drawString(80,700,"Test Configuration")
+    p.drawString(80,500,"Test Time : ")
+    p.drawString(200,500,str(t1.getTime()) + " miliseconds " )
+    p.drawString(80,400,"Test Chart")
+    p.saveState()
+    
+    drawing = Drawing(10, 10)
+    data = [(10, 20, 30, 40), (15, 22, 37, 42)]
+    xAxis = XCategoryAxis()
+    xAxis.setPosition(75, 75, 300)
+    xAxis.configure(data)
+    xAxis.categoryNames = ['Beer', 'Wine', 'Meat', 'Cannelloni']
+    xAxis.labels.boxAnchor = 'n'
+    xAxis.labels[3].dy = -15
+    xAxis.labels[3].angle = 30
+    xAxis.labels[3].fontName = 'Times-Bold'
+    yAxis = YValueAxis()
+    yAxis.setPosition(50, 50, 125)
+    yAxis.configure(data)
+    drawing.add(xAxis)
+    drawing.add(yAxis)
+    
     # Close the PDF object cleanly, and we're done.
     p.showPage()
     p.save()
